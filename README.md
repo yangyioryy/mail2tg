@@ -76,3 +76,18 @@ Gmail、QQ 邮箱和 CSU 邮箱的新邮件通知统一标准化后推送到 Tel
 - `docs/setup-telegram.md`：Bot 创建、推送模板与多 Chat 扩展位
 - `docs/deploy-cloudflare.md`：Secrets、Vars、D1、Cron 与部署步骤
 - `docs/troubleshooting.md`：常见故障、排查顺序与已知限制
+
+## 首版限制与扩展建议
+
+当前首版限制：
+
+- 只完成了骨架、统一模型、文档和本地自动化测试
+- 真实邮箱、真实 Telegram 和真实 Cloudflare 链路仍需你在有凭据的环境中完成最终验收
+- 当前 Cron 目标是分钟级，不承诺秒级实时性
+
+后续扩展建议：
+
+- 接入真实 Gmail/QQ/CSU 适配器实现
+- 为 D1 持久层补事务级实现
+- 增加按 Chat/Topic 路由和静音策略
+- 增加运行日志、告警和人工重同步入口
