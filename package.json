@@ -7,6 +7,7 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "db:init": "wrangler d1 execute mail2tg --file src/storage/schema.sql",
-    "self-check": "node scripts/self-check.mjs"
+    "self-check": "node scripts/self-check.mjs",
+    "test": "node --test test/mail2tg.test.ts"
   }
 }

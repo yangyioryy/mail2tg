@@ -1,4 +1,4 @@
-import { type MailMessage, type MailboxSource } from "../models/types";
+import { type MailMessage, type MailboxSource } from "../models/types.ts";
 
 export type MailboxAuthMode =
   | "imap_app_password"

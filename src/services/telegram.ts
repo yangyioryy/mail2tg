@@ -1,4 +1,4 @@
-import { type MailMessage } from "../models/types";
+import { type MailMessage } from "../models/types.ts";
 
 export interface TelegramTarget {
   chatId: string;

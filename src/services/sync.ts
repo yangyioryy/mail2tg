@@ -1,5 +1,5 @@
-import { type MailMessage, type MailboxSource } from "../models/types";
-import { filterNewMessages, type DedupeStore } from "./dedupe";
+import { type MailMessage, type MailboxSource } from "../models/types.ts";
+import { filterNewMessages, type DedupeStore } from "./dedupe.ts";
 
 export type SyncMode = "initial_backfill" | "incremental" | "resume" | "manual_resync";
 
