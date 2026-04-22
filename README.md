@@ -61,3 +61,18 @@ Gmail、QQ 邮箱和 CSU 邮箱的新邮件通知统一标准化后推送到 Tel
 - Gmail、QQ 邮箱、CSU 邮箱接入说明
 - Telegram 配置说明
 - Cloudflare 部署与排障文档
+
+## 快速开始
+
+1. 阅读 `docs/setup-mailboxes.md`，准备 Gmail、QQ 或 CSU 邮箱的客户端凭据
+2. 阅读 `docs/setup-telegram.md`，创建 Bot 并拿到 `chat_id`
+3. 按 `docs/deploy-cloudflare.md` 创建 D1、写入 Secrets、配置 Cron 并部署
+4. 执行 `npm run self-check`
+5. 执行 `npm run test`
+
+## 文档导航
+
+- `docs/setup-mailboxes.md`：邮箱接入方式、认证策略与统一输出字段
+- `docs/setup-telegram.md`：Bot 创建、推送模板与多 Chat 扩展位
+- `docs/deploy-cloudflare.md`：Secrets、Vars、D1、Cron 与部署步骤
+- `docs/troubleshooting.md`：常见故障、排查顺序与已知限制
