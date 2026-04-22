@@ -1,0 +1,20 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "mail2tg",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-04-22",
+  "triggers": {
+    "crons": ["*/5 * * * *"]
+  },
+  "vars": {
+    "MAIL2TG_SUMMARY_LIMIT": "160",
+    "MAIL2TG_LOG_LEVEL": "info"
+  },
+  "d1_databases": [
+    {
+      "binding": "MAIL2TG_DB",
+      "database_name": "mail2tg",
+      "database_id": "replace-with-your-d1-database-id"
+    }
+  ]
+}

@@ -35,6 +35,24 @@ Gmail、QQ 邮箱和 CSU 邮箱的新邮件通知统一标准化后推送到 Tel
 后续适配器、持久层、模板层和测试层都应复用这些定义，不允许私自扩展未评审
 字段。
 
+## Cloudflare 运行架构
+
+首版采用 `Worker + Cron Triggers + D1`：
+
+- `wrangler.jsonc` 通过 `triggers.crons` 提供分钟级调度入口
+- `src/index.ts` 暴露 `scheduled()` 作为定时同步入口，`fetch()` 仅提供最小诊断摘要
+- Worker 入口只负责编排流程：读取邮箱配置、加载检查点、拉取邮件、标准化、去重、投递和落日志
+- D1 只负责配置、检查点、幂等键和投递日志，不负责正文存储、附件落盘或模板渲染
+
+当前调用关系固定为：
+
+1. Cron 触发 `scheduled()`
+2. Worker 读取 D1 中的邮箱配置与检查点
+3. 邮箱适配器拉取增量消息并标准化为 `MailMessage`
+4. 同步服务按去重键过滤重复通知
+5. Telegram 服务发送消息
+6. D1 持久化检查点和投递日志
+
 ## 首版交付物
 
 - Cloudflare Worker 项目代码
