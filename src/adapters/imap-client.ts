@@ -265,20 +265,45 @@ function getMimeParam(header: string, param: string): string | undefined {
 
 function extractMultipartText(body: string, boundary: string): string {
   if (!boundary) return "";
-  const esc = boundary.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const parts = body.split(new RegExp(`--${esc}(?:--)?\\s*\n?`));
-  for (const part of parts) {
-    if (!part.trim()) continue;
-    const sep = part.indexOf("\n\n");
+
+  // 逐行扫描，按 --boundary 定位各 MIME part，比正则 split 更健壮
+  const delimiter = "--" + boundary;
+  const lines = body.split("\n");
+  const partBlocks: string[] = [];
+  let current: string[] | null = null;
+
+  for (const line of lines) {
+    const stripped = line.trimEnd();
+    if (stripped === delimiter || stripped === delimiter + "--") {
+      if (current !== null) partBlocks.push(current.join("\n"));
+      current = stripped.endsWith("--") ? null : [];
+    } else if (current !== null) {
+      current.push(line);
+    }
+  }
+  if (current !== null && current.length > 0) partBlocks.push(current.join("\n"));
+
+  let htmlFallback = "";
+
+  for (const block of partBlocks) {
+    const sep = block.indexOf("\n\n");
     if (sep === -1) continue;
-    const ph = parseHeaders(part.slice(0, sep));
-    const pb = part.slice(sep + 2);
+    const ph = parseHeaders(block.slice(0, sep));
+    const pb = block.slice(sep + 2);
     const pct = ph["content-type"] ?? "text/plain";
     const pte = ph["content-transfer-encoding"] ?? "";
+
     if (pct.toLowerCase().startsWith("text/plain")) {
       const cs = getMimeParam(pct, "charset") ?? "utf-8";
-      return decodeContent(pb, pte, cs);
+      const decoded = decodeContent(pb, pte, cs).trim();
+      if (decoded) return decoded; // 非空才采用
     }
+
+    if (pct.toLowerCase().startsWith("text/html") && !htmlFallback) {
+      const cs = getMimeParam(pct, "charset") ?? "utf-8";
+      htmlFallback = stripHtml(decodeContent(pb, pte, cs));
+    }
+
     if (pct.toLowerCase().includes("multipart/")) {
       const innerBoundary = getMimeParam(pct, "boundary");
       if (innerBoundary) {
@@ -287,7 +312,27 @@ function extractMultipartText(body: string, boundary: string): string {
       }
     }
   }
-  return "";
+
+  // text/plain 为空时降级到 HTML 纯文本
+  return htmlFallback;
+}
+
+/** 将 HTML 转为可读纯文本，保留基本换行结构 */
+function stripHtml(html: string): string {
+  return html
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/(?:p|div|tr|li|h[1-6])>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#(\d+);/g, (_, n: string) => String.fromCharCode(parseInt(n, 10)))
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 
 function decodeContent(content: string, encoding: string, charset: string): string {

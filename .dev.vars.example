@@ -11,13 +11,13 @@ TELEGRAM_BOT_TOKEN=replace-me
 TELEGRAM_DEFAULT_CHAT_ID=replace-me
 
 # Gmail（登录账号 + Google 账号后台生成的「应用专用密码」）
-GMAIL_USERNAME_SECRET=yangyioryy@gmail.com
+GMAIL_USERNAME_SECRET=replace-with-gmail-address
 GMAIL_PASSWORD_SECRET=replace-with-app-password
 
 # QQ 邮箱（登录账号 + QQ 邮箱设置中生成的「授权码」）
-QQ_USERNAME_SECRET=yangyioryy@qq.com
+QQ_USERNAME_SECRET=replace-with-qq-address
 QQ_PASSWORD_SECRET=replace-with-auth-code
 
 # CSU 邮箱（登录账号 + 学校邮箱密码）
-CSU_USERNAME_SECRET=8209230623@csu.edu.cn
+CSU_USERNAME_SECRET=replace-with-school-address
 CSU_PASSWORD_SECRET=replace-with-csu-password

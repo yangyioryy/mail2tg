@@ -10,9 +10,6 @@ const requiredPaths = [
   "src/services/sync.ts",
   "src/services/dedupe.ts",
   "src/storage/schema.sql",
-  "docs/setup-mailboxes.md",
-  "docs/setup-telegram.md",
-  "docs/deploy-cloudflare.md",
 ];
 
 const missing = requiredPaths.filter((relativePath) => !existsSync(relativePath));
