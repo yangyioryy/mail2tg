@@ -17,7 +17,7 @@
       "database_name": "mail2tg",
       // 创建 D1 数据库后将真实 ID 填入此处
       // 创建命令：wrangler d1 create mail2tg
-      "database_id": "replace-with-your-d1-database-id"
+      "database_id": "5ce4c40f-b300-4411-9225-6e2af35a8668"
     }
   ]
 }
