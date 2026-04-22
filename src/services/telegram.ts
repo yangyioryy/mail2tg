@@ -73,18 +73,26 @@ export function renderTelegramMessage(
   policy: TelegramDeliveryPolicy = DEFAULT_TELEGRAM_POLICY,
 ): string {
   const subject = truncateText(message.subject, policy.maxSubjectLength);
-  const summary = truncateText(message.summary, policy.maxSummaryLength);
   const sourceLabel = message.source.toUpperCase();
 
-  const lines = [
-    `<b>[${escapeHtml(sourceLabel)}]</b> ${escapeHtml(subject)}`,
-    `发件人：${escapeHtml(message.senderAddress)}`,
-    `时间：${escapeHtml(message.receivedAt)}`,
-    `摘要：${escapeHtml(summary)}`,
+  const lines: string[] = [
+    `<b>[${escapeHtml(sourceLabel)}] ${escapeHtml(subject)}</b>`,
+    `📤 发件人：${escapeHtml(message.senderAddress)}`,
+    `🕐 时间：${escapeHtml(message.receivedAt)}`,
   ];
 
   if (message.messageLink) {
-    lines.push(`链接：${escapeHtml(message.messageLink)}`);
+    lines.push(`🔗 链接：${escapeHtml(message.messageLink)}`);
+  }
+
+  lines.push("");
+
+  // 优先展示完整正文；若无正文则降级到摘要
+  if (message.body && message.body.trim().length > 0) {
+    lines.push(escapeHtml(message.body));
+  } else {
+    const summary = truncateText(message.summary, policy.maxSummaryLength);
+    lines.push(`摘要：${escapeHtml(summary)}`);
   }
 
   return lines.join("\n");

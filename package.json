@@ -6,8 +6,15 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "db:init": "wrangler d1 execute mail2tg --file src/storage/schema.sql",
+    "db:init": "wrangler d1 execute mail2tg --local --file src/storage/schema.sql",
+    "db:init:remote": "wrangler d1 execute mail2tg --remote --file src/storage/schema.sql",
     "self-check": "node scripts/self-check.mjs",
-    "test": "node --test test/mail2tg.test.ts"
+    "test": "node --test test/mail2tg.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250422.0",
+    "typescript": "^5.8.3",
+    "wrangler": "^4.13.2"
   }
 }

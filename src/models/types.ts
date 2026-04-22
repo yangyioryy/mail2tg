@@ -10,6 +10,8 @@ export interface MailMessage {
   subject: string;
   receivedAt: string;
   summary: string;
+  /** 邮件纯文本正文（完整内容，已截断至安全长度）*/
+  body?: string;
   messageLink?: string;
 }
 

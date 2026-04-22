@@ -4,6 +4,7 @@
   "main": "src/index.ts",
   "compatibility_date": "2026-04-22",
   "triggers": {
+    // 每 5 分钟轮询一次邮箱
     "crons": ["*/5 * * * *"]
   },
   "vars": {
@@ -14,6 +15,8 @@
     {
       "binding": "MAIL2TG_DB",
       "database_name": "mail2tg",
+      // 创建 D1 数据库后将真实 ID 填入此处
+      // 创建命令：wrangler d1 create mail2tg
       "database_id": "replace-with-your-d1-database-id"
     }
   ]
