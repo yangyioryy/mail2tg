@@ -1,0 +1,14 @@
+# 非敏感本地示例变量
+MAIL2TG_SUMMARY_LIMIT=160
+MAIL2TG_LOG_LEVEL=info
+
+# 本地调试时仍建议通过 wrangler secret 或本机私有文件注入
+# 不要把真实凭据提交到仓库
+TELEGRAM_BOT_TOKEN=replace-me
+TELEGRAM_DEFAULT_CHAT_ID=replace-me
+GMAIL_USERNAME_SECRET=replace-me
+GMAIL_PASSWORD_SECRET=replace-me
+QQ_USERNAME_SECRET=replace-me
+QQ_PASSWORD_SECRET=replace-me
+CSU_USERNAME_SECRET=replace-me
+CSU_PASSWORD_SECRET=replace-me
