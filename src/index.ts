@@ -28,19 +28,18 @@ export interface Env {
 
 interface MailboxDef {
   source: MailboxSource;
-  accountId: string;
   host: string;
   port: number;
+  getAccountId(env: Env): string;
   getCredentials(env: Env): { username: string; password: string };
 }
 
 const MAILBOXES: MailboxDef[] = [
   {
     source: "gmail",
-    // 使用脱敏后的逻辑标识，避免在仓库中暴露真实邮箱地址
-    accountId: "gmail-primary",
     host: "imap.gmail.com",
     port: 993,
+    getAccountId: (env) => env.GMAIL_USERNAME_SECRET,
     getCredentials: (env) => ({
       username: env.GMAIL_USERNAME_SECRET,
       password: env.GMAIL_PASSWORD_SECRET,
@@ -48,9 +47,9 @@ const MAILBOXES: MailboxDef[] = [
   },
   {
     source: "qq",
-    accountId: "qq-primary",
     host: "imap.qq.com",
     port: 993,
+    getAccountId: (env) => env.QQ_USERNAME_SECRET,
     getCredentials: (env) => ({
       username: env.QQ_USERNAME_SECRET,
       password: env.QQ_PASSWORD_SECRET,
@@ -58,9 +57,9 @@ const MAILBOXES: MailboxDef[] = [
   },
   {
     source: "csu",
-    accountId: "csu-primary",
     host: "mail.csu.edu.cn",
     port: 993,
+    getAccountId: (env) => env.CSU_USERNAME_SECRET,
     getCredentials: (env) => ({
       username: env.CSU_USERNAME_SECRET,
       password: env.CSU_PASSWORD_SECRET,
@@ -114,10 +113,11 @@ async function syncMailbox(
   checkpointStore: D1CheckpointStore,
   mb: MailboxDef,
 ): Promise<{ fetched: number; sent: number }> {
+  const accountId = mb.getAccountId(env);
   const creds = mb.getCredentials(env);
 
   // 加载上次拉取的最大 UID 作为检查点
-  const lastCursor = await checkpointStore.load(mb.source, mb.accountId);
+  const lastCursor = await checkpointStore.load(mb.source, accountId);
   const lastUid = lastCursor ? parseInt(lastCursor, 10) : 0;
   const isFirstRun = !lastCursor;
 
@@ -130,12 +130,12 @@ async function syncMailbox(
   // 首次运行：仅初始化检查点，不推送任何历史邮件
   if (isFirstRun) {
     if (maxUid > 0) {
-      await checkpointStore.save(mb.source, mb.accountId, String(maxUid));
+      await checkpointStore.save(mb.source, accountId, String(maxUid));
     }
     return { fetched: emails.length, sent: 0 };
   }
 
-  const dedupeStore = new D1DedupeStore(env.MAIL2TG_DB, mb.source, mb.accountId);
+  const dedupeStore = new D1DedupeStore(env.MAIL2TG_DB, mb.source, accountId);
   let sent = 0;
 
   for (const email of emails) {
@@ -146,7 +146,7 @@ async function syncMailbox(
 
     const message: MailMessage = {
       source: mb.source,
-      accountId: mb.accountId,
+      accountId,
       dedupeKey,
       remoteMessageId: email.messageId,
       senderAddress: email.from,
@@ -182,7 +182,7 @@ async function syncMailbox(
 
   // 仅在有新邮件时更新检查点
   if (maxUid > lastUid) {
-    await checkpointStore.save(mb.source, mb.accountId, String(maxUid));
+    await checkpointStore.save(mb.source, accountId, String(maxUid));
   }
 
   return { fetched: emails.length, sent };
