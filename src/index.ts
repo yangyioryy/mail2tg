@@ -37,7 +37,7 @@ interface MailboxDef {
 const MAILBOXES: MailboxDef[] = [
   {
     source: "gmail",
-    accountId: "gmail-primary",
+    accountId: "yangyioryy@gmail.com",
     host: "imap.gmail.com",
     port: 993,
     getCredentials: (env) => ({
@@ -47,7 +47,7 @@ const MAILBOXES: MailboxDef[] = [
   },
   {
     source: "qq",
-    accountId: "qq-primary",
+    accountId: "yangyioryy@qq.com",
     host: "imap.qq.com",
     port: 993,
     getCredentials: (env) => ({
@@ -57,7 +57,7 @@ const MAILBOXES: MailboxDef[] = [
   },
   {
     source: "csu",
-    accountId: "csu-primary",
+    accountId: "8209230623@csu.edu.cn",
     host: "mail.csu.edu.cn",
     port: 993,
     getCredentials: (env) => ({
@@ -118,12 +118,21 @@ async function syncMailbox(
   // 加载上次拉取的最大 UID 作为检查点
   const lastCursor = await checkpointStore.load(mb.source, mb.accountId);
   const lastUid = lastCursor ? parseInt(lastCursor, 10) : 0;
+  const isFirstRun = !lastCursor;
 
   // IMAP 拉取新邮件
   const { emails, maxUid } = await fetchNewImapEmails(
     { host: mb.host, port: mb.port, ...creds },
     lastUid,
   );
+
+  // 首次运行：仅初始化检查点，不推送任何历史邮件
+  if (isFirstRun) {
+    if (maxUid > 0) {
+      await checkpointStore.save(mb.source, mb.accountId, String(maxUid));
+    }
+    return { fetched: emails.length, sent: 0 };
+  }
 
   const dedupeStore = new D1DedupeStore(env.MAIL2TG_DB, mb.source, mb.accountId);
   let sent = 0;

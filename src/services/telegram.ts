@@ -68,31 +68,38 @@ export function buildTelegramRequestBody(
   };
 }
 
+const SOURCE_EMOJI: Record<string, string> = {
+  gmail: "📧",
+  qq: "💬",
+  csu: "🎓",
+};
+
 export function renderTelegramMessage(
   message: MailMessage,
   policy: TelegramDeliveryPolicy = DEFAULT_TELEGRAM_POLICY,
 ): string {
   const subject = truncateText(message.subject, policy.maxSubjectLength);
   const sourceLabel = message.source.toUpperCase();
+  const sourceEmoji = SOURCE_EMOJI[message.source] ?? "📬";
 
   const lines: string[] = [
-    `<b>[${escapeHtml(sourceLabel)}] ${escapeHtml(subject)}</b>`,
-    `📤 发件人：${escapeHtml(message.senderAddress)}`,
-    `🕐 时间：${escapeHtml(message.receivedAt)}`,
+    `${sourceEmoji} <b>[${escapeHtml(sourceLabel)}]</b> ${escapeHtml(subject)}`,
+    `📤 <b>发件人：</b>${escapeHtml(message.senderAddress)}`,
+    `🕐 <b>时间：</b>${escapeHtml(message.receivedAt)}`,
   ];
 
   if (message.messageLink) {
-    lines.push(`🔗 链接：${escapeHtml(message.messageLink)}`);
+    lines.push(`🔗 <b>链接：</b>${escapeHtml(message.messageLink)}`);
   }
 
-  lines.push("");
+  lines.push("─────────────────────");
 
   // 优先展示完整正文；若无正文则降级到摘要
   if (message.body && message.body.trim().length > 0) {
     lines.push(escapeHtml(message.body));
   } else {
     const summary = truncateText(message.summary, policy.maxSummaryLength);
-    lines.push(`摘要：${escapeHtml(summary)}`);
+    lines.push(`<i>${escapeHtml(summary)}</i>`);
   }
 
   return lines.join("\n");

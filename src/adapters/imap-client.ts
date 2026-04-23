@@ -225,7 +225,8 @@ function parseEmail(uid: number, raw: string): ParsedEmail {
     const boundary = getMimeParam(ct, "boundary") ?? "";
     body = extractMultipartText(bodyStr, boundary);
   } else {
-    body = decodeContent(bodyStr, te, charset);
+    const decoded = decodeContent(bodyStr, te, charset);
+    body = ct.toLowerCase().startsWith("text/html") ? stripHtml(decoded) : decoded;
   }
 
   const trimmed = body.trim();
