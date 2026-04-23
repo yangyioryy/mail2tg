@@ -37,7 +37,8 @@ interface MailboxDef {
 const MAILBOXES: MailboxDef[] = [
   {
     source: "gmail",
-    accountId: "yangyioryy@gmail.com",
+    // 使用脱敏后的逻辑标识，避免在仓库中暴露真实邮箱地址
+    accountId: "gmail-primary",
     host: "imap.gmail.com",
     port: 993,
     getCredentials: (env) => ({
@@ -47,7 +48,7 @@ const MAILBOXES: MailboxDef[] = [
   },
   {
     source: "qq",
-    accountId: "yangyioryy@qq.com",
+    accountId: "qq-primary",
     host: "imap.qq.com",
     port: 993,
     getCredentials: (env) => ({
@@ -57,7 +58,7 @@ const MAILBOXES: MailboxDef[] = [
   },
   {
     source: "csu",
-    accountId: "8209230623@csu.edu.cn",
+    accountId: "csu-primary",
     host: "mail.csu.edu.cn",
     port: 993,
     getCredentials: (env) => ({
