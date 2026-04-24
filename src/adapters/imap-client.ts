@@ -79,7 +79,8 @@ export async function fetchNewImapEmails(
 // ─── IMAP Session ─────────────────────────────────────────────────────────────
 
 class ImapSession {
-  private buf = "";
+  // 内部缓冲区使用字节数组，避免 UTF-8 多字节字符导致字符数 < 字节数的陷阱
+  private buf: Uint8Array = new Uint8Array(0);
   private counter = 0;
   private readonly dec = new TextDecoder();
   private readonly enc = new TextEncoder();
@@ -92,24 +93,30 @@ class ImapSession {
   private async refill(): Promise<void> {
     const { done, value } = await this.r.read();
     if (done) throw new Error("IMAP: 连接意外关闭");
-    this.buf += this.dec.decode(value, { stream: true });
+    const next = new Uint8Array(this.buf.length + value.length);
+    next.set(this.buf);
+    next.set(value, this.buf.length);
+    this.buf = next;
   }
 
   async readLine(): Promise<string> {
     for (;;) {
-      const i = this.buf.indexOf("\r\n");
-      if (i !== -1) {
-        const line = this.buf.slice(0, i);
-        this.buf = this.buf.slice(i + 2);
-        return line;
+      // 在字节层查找 \r\n (0x0d 0x0a)
+      for (let i = 0; i < this.buf.length - 1; i++) {
+        if (this.buf[i] === 0x0d && this.buf[i + 1] === 0x0a) {
+          const line = this.dec.decode(this.buf.slice(0, i));
+          this.buf = this.buf.slice(i + 2);
+          return line;
+        }
       }
       await this.refill();
     }
   }
 
+  // n 是 IMAP literal 的字节数，必须用字节长度比较而非字符长度
   private async readExact(n: number): Promise<string> {
     while (this.buf.length < n) await this.refill();
-    const chunk = this.buf.slice(0, n);
+    const chunk = this.dec.decode(this.buf.slice(0, n));
     this.buf = this.buf.slice(n);
     return chunk;
   }
